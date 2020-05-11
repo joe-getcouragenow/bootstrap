@@ -53,9 +53,25 @@ this-print-env-ex:
 
 	@echo GO_ARCH: 	$(GO_ARCH)
 
-## Build this
-this-build: this-statiks this-scan-statiks
+
+## Build this.
+this-build: this-dep this-statiks this-scan-statiks
 	$(MAKE) go-build
+
+## Delete the build.
+this-build-clean: this-dep-clean
+	rm -rf $(GOPATH)/bin/bs
+
+	# delete all generated stuff
+	rm -rf $(PWD)/statiks
+
+this-dep:
+	# add binaries needs to build
+	go get -u github.com/rakyll/statik
+
+this-dep-clean:
+	rm -rf $(GOPATH)/bin/statik
+
 
 this-statiks:
 	@statik -src=$(PWD)/boilerplate/core -ns bpcore -p bpcore -dest=$(STATIK_DEST) -f
@@ -64,7 +80,6 @@ this-statiks:
 	@statik -src=$(PWD)/boilerplate/os -ns bpos -p bpos -dest=$(STATIK_DEST) -f
 	@statik -src=$(PWD)/boilerplate -ns bproot -p bproot -dest=$(STATIK_DEST) -f
 
-## Scan the statiks
 this-scan-statiks:
 	@go run $(PWD)/sdk/cmd/scantool -t $(PWD)/tool -s $(STATIK_DEST) -o $(PWD)/sdk/cmd/path.go
 
